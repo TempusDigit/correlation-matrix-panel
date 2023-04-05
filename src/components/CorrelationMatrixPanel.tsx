@@ -71,12 +71,36 @@ const normalize = (min: number, max: number, value: number) => {
 }
 
 export const CorrelationMatrixPanel: React.FC<Props> = ({ data, id, fieldConfig, options }) => {
-  if (!data.series.length || data.series[0].fields.length - 1 !== data.series[0].fields[0].values.length) {
+  const theme = useTheme2();
+  const styles = useStyles2(getStyles);
+  const range = useRef({ min: Number.MAX_VALUE, max: Number.MIN_VALUE });
+  const [chartData, setChartData] = useState<{ x: string[], y: string[], z: (number | null)[][], zRaw: (number | null)[][], normalized: (number | null)[][] }>({ x: [], y: [], z: [], zRaw: [], normalized: [] });
+  const dataValid = data.series.length && data.series[0].fields.length - 1 === data.series[0].fields[0].values.length;
+
+  useEffect(() => {
+    if (dataValid) {
+      const fieldsSlice = data.series[0].fields.slice(1);
+      // Instead of two maps, you can construct x and z arrays with one loop.
+      const zValues: number[][] = fieldsSlice.map(field => field.values.toArray());
+      const localRange = getRange(data.series[0].fields);
+      if (range.current.min !== localRange.min || range.current.max !== localRange.max) {
+        range.current = localRange;
+      }
+      const normalizedValues: number[][] = zValues.length === 1 ? [[0]] : zValues.map(values => values = values.map(value => normalize(localRange.min, localRange.max, value)));
+      setChartData({
+        x: fieldsSlice.map(field => field.name),
+        y: data.series[0].fields[0].values.toArray(),
+        z: zValues,
+        zRaw: zValues,
+        normalized: normalizedValues,
+      });
+    }
+  }, [dataValid, data]);
+
+  if (!dataValid) {
     return <PanelDataErrorView panelId={id} fieldConfig={fieldConfig} data={data} />;
   }
 
-  const theme = useTheme2();
-  const styles = useStyles2(getStyles);
   const style = {
     width: "100%",
     height: "100%"
@@ -93,9 +117,7 @@ export const CorrelationMatrixPanel: React.FC<Props> = ({ data, id, fieldConfig,
     fixedrange: true,
     automargin: true,
   };
-  const range = useRef({ min: Number.MAX_VALUE, max: Number.MIN_VALUE });
-  const [chartData, setChartData] = useState<{ x: string[], y: string[], z: (number | null)[][], zRaw: (number | null)[][], normalized: (number | null)[][] }>({ x: [], y: [], z: [], zRaw: [], normalized: [] });
-
+  
   // Sub-optimal solution as this method runs every render. Should be moved to a useEffect. However, chartData is empty on load in useEffect and only displays on refresh. 
   const handleThreshold = () => {
     const zValues: (number | null)[][] = options.normalize ? chartData.normalized : chartData.z;
@@ -125,24 +147,6 @@ export const CorrelationMatrixPanel: React.FC<Props> = ({ data, id, fieldConfig,
     }
     return color.startsWith('#') ? color : '#' + tinycolor(theme.visualization.getColorByName(color)).toHex()
   }
-
-  useEffect(() => {
-    const fieldsSlice = data.series[0].fields.slice(1);
-    // Instead of two maps, you can construct x and z arrays with one loop.
-    const zValues: number[][] = fieldsSlice.map(field => field.values.toArray());
-    const localRange = getRange(data.series[0].fields);
-    if (range.current.min !== localRange.min || range.current.max !== localRange.max) {
-      range.current = localRange;
-    }
-    const normalizedValues: number[][] = zValues.length === 1 ? [[0]] : zValues.map(values => values = values.map(value => normalize(localRange.min, localRange.max, value)));
-    setChartData({
-      x: fieldsSlice.map(field => field.name),
-      y: data.series[0].fields[0].values.toArray(),
-      z: zValues,
-      zRaw: zValues,
-      normalized: normalizedValues,
-    });
-  }, [data]);
 
   return (
     <div style={style}>
@@ -187,7 +191,10 @@ export const CorrelationMatrixPanel: React.FC<Props> = ({ data, id, fieldConfig,
           paper_bgcolor: "transparent",
           plot_bgcolor: "transparent",
           xaxis: axisSettings,
-          yaxis: axisSettings,
+          yaxis: {
+            ...axisSettings,
+            autorange: 'reversed'
+          },
           margin: {
             t: 10,
             r: 10,
