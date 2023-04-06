@@ -1,15 +1,7 @@
-// export type TextInfoType = 'label'
-//   | 'label+value'
-//   | 'label+percent'
-//   | 'label+value+percent'
-//   | 'value'
-//   | 'value+percent'
-//   | 'percent'
-//   | 'none';
-
-export interface CorrelationMatrixOptions {
-  normalize: boolean;
-  colorScaleTop: string;
-  colorScaleBottom: string;
-  threshold: number;
+export interface ChartData {
+  x: string[];
+  y: string[];
+  z: (number | null)[][];
+  zRaw: (number | null)[][];
+  normalized: (number | null)[][];
 }

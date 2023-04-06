@@ -1,21 +1,12 @@
-import React, {
-  useEffect,
-  useRef,
-  useState
-} from 'react';
-import {
-  Field,
-  PanelProps
-} from '@grafana/data';
-import { CorrelationMatrixOptions } from 'types';
+import React, { useEffect, useRef, useState } from 'react';
+import { Field, PanelProps } from '@grafana/data';
+import { ChartData } from 'types';
 import { css } from '@emotion/css';
-import {
-  useStyles2,
-  useTheme2
-} from '@grafana/ui';
+import { useStyles2, useTheme2 } from '@grafana/ui';
 import Plot from 'react-plotly.js';
 import tinycolor from 'tinycolor2';
 import { PanelDataErrorView } from '@grafana/runtime';
+import { CorrelationMatrixOptions } from 'models.gen';
 
 interface Props extends PanelProps<CorrelationMatrixOptions> { }
 
@@ -74,8 +65,8 @@ export const CorrelationMatrixPanel: React.FC<Props> = ({ data, id, fieldConfig,
   const theme = useTheme2();
   const styles = useStyles2(getStyles);
   const range = useRef({ min: Number.MAX_VALUE, max: Number.MIN_VALUE });
-  const [chartData, setChartData] = useState<{ x: string[], y: string[], z: (number | null)[][], zRaw: (number | null)[][], normalized: (number | null)[][] }>({ x: [], y: [], z: [], zRaw: [], normalized: [] });
-  const dataValid = data.series.length && data.series[0].fields.length - 1 === data.series[0].fields[0].values.length;
+  const [chartData, setChartData] = useState<ChartData>({ x: [], y: [], z: [], zRaw: [], normalized: [] });
+  const dataValid = data.series.length > 0 && data.series[0].fields.length - 1 === data.series[0].fields[0].values.length;
 
   useEffect(() => {
     if (dataValid) {
@@ -117,12 +108,14 @@ export const CorrelationMatrixPanel: React.FC<Props> = ({ data, id, fieldConfig,
     fixedrange: true,
     automargin: true,
   };
-  
+
   // Sub-optimal solution as this method runs every render. Should be moved to a useEffect. However, chartData is empty on load in useEffect and only displays on refresh. 
   const handleThreshold = () => {
+    // eslint-disable-next-line @typescript-eslint/array-type
     const zValues: (number | null)[][] = options.normalize ? chartData.normalized : chartData.z;
     if (options.threshold !== undefined) {
       const labels: string[] = [];
+      // eslint-disable-next-line @typescript-eslint/array-type
       const zValuesTrimmed: (number | null)[][] = [];
       chartData.normalized.forEach((columnValues, colIndex) => {
         let uncorrCount = 1
