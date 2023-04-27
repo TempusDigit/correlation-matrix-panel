@@ -66,6 +66,7 @@ export const CorrelationMatrixPanel: React.FC<Props> = ({ data, id, fieldConfig,
       if (range.current.min !== localRange.min || range.current.max !== localRange.max) {
         range.current = localRange;
       }
+      // Data might not be normalized.
       const normalizedValues: number[][] = zValues.length === 1 ? [[0]] : zValues.map(values => values = values.map(value => normalize(localRange.min, localRange.max, value)));
       // Raw and normalized data is stored for fast switching between modes from the options panel when the data size grows. It might not be wise to store it though. Need to ponder.
       setChartData({

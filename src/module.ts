@@ -1,6 +1,6 @@
 import { PanelPlugin } from '@grafana/data';
-import { CorrelationMatrixOptions } from './types';
 import { CorrelationMatrixPanel } from './components/CorrelationMatrixPanel';
+import { CorrelationMatrixOptions } from 'models.gen';
 
 export const plugin = new PanelPlugin<CorrelationMatrixOptions>(CorrelationMatrixPanel).setPanelOptions((builder) => {
   return builder
@@ -42,18 +42,4 @@ export const plugin = new PanelPlugin<CorrelationMatrixOptions>(CorrelationMatri
         placeholder: 'None',
       },
     });
-    // .addTextInput({
-    //   path: 'scaleMin',
-    //   name: 'Start color scale from value',
-    //   settings: {
-    //     placeholder: 'Auto (min)',
-    //   },
-    // })
-    // .addTextInput({
-    //   path: 'scaleMax',
-    //   name: 'End color scale at value',
-    //   settings: {
-    //     placeholder: 'Auto (max)',
-    //   },
-    // });
 });
