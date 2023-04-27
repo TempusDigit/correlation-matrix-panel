@@ -24,23 +24,12 @@ const getStyles = () => {
   };
 };
 
-// const getTextInfo = (labelDisplayOptions: string[]) => {
-//   if (labelDisplayOptions[0] === "n" || labelDisplayOptions.length === 0) {
-//     return 'none' as TextInfoType;
-//   }
-
-//   const options = [{ name: "label", selected: false }, { name: "value", selected: false }, { name: "percent", selected: false }];
-//   labelDisplayOptions.forEach(selectedOption => {
-//     for (const option of options) {
-//       if (option.name === selectedOption) {
-//         option.selected = true;
-//         break;
-//       }
-//     }
-//   });
-//   return options.filter(option => option.selected).map(option => option.name).join('+') as TextInfoType
-// }
-
+/**
+ * Finds min and max value for use in normalization.
+ * 
+ * @remarks
+ * Grafana automatically finds min and max values for a field. So, I could get the value from there.
+ */
 const getRange = (fields: Field[]) => {
   let min = Number.MAX_VALUE;
   let max = Number.MIN_VALUE;
@@ -78,6 +67,7 @@ export const CorrelationMatrixPanel: React.FC<Props> = ({ data, id, fieldConfig,
         range.current = localRange;
       }
       const normalizedValues: number[][] = zValues.length === 1 ? [[0]] : zValues.map(values => values = values.map(value => normalize(localRange.min, localRange.max, value)));
+      // Raw and normalized data is stored for fast switching between modes from the options panel when the data size grows. It might not be wise to store it though. Need to ponder.
       setChartData({
         x: fieldsSlice.map(field => field.name),
         y: data.series[0].fields[0].values.toArray(),
@@ -117,6 +107,7 @@ export const CorrelationMatrixPanel: React.FC<Props> = ({ data, id, fieldConfig,
       const labels: string[] = [];
       // eslint-disable-next-line @typescript-eslint/array-type
       const zValuesTrimmed: (number | null)[][] = [];
+      // A column is not added to the visualization data if all the values in that column expect one (that is expected to equal one) do not correlate (lower than threshold).
       chartData.normalized.forEach((columnValues, colIndex) => {
         let uncorrCount = 1
         columnValues.forEach(value => {
@@ -134,6 +125,12 @@ export const CorrelationMatrixPanel: React.FC<Props> = ({ data, id, fieldConfig,
     return { x: chartData.x, y: chartData.y, z: zValues };
   }
 
+  /**
+   * Gets a hex color code from the color picker value.
+   * 
+   * @remarks
+   * The Grafana color picker has some non standard color names, such as 'light-blue' which are not standard css colors. So, the color parser that Grafana uses is used to get the hex.
+   */
   const getColor = (color: string) => {
     if (color === "transparent") {
       return color;
@@ -143,38 +140,6 @@ export const CorrelationMatrixPanel: React.FC<Props> = ({ data, id, fieldConfig,
 
   return (
     <div style={style}>
-      {/* <Plot
-        className={styles.svg}
-        useResizeHandler
-        style={{ width: "100%", height: "100%" }}
-        layout={{
-          autosize: true,
-          paper_bgcolor: "transparent",
-          legend: {
-            font: {
-              color: theme.colors.text.primary
-            }
-          },
-        }}
-        data={[
-          {
-            values: data.series[0].fields.find(field => field.name === options.displayField)?.values.toArray(),
-            labels: data.series[0].fields.filter(field => field.name !== options.displayField && field.type === FieldType.string).reduce((labelField: string[], field) => {
-              field.values.toArray().forEach((fieldValue: any, index: number) => {
-                if (labelField[index] === undefined) {
-                  labelField[index] = fieldValue
-                } else {
-                  labelField[index] += ` ${fieldValue}`
-                }
-              });
-              return labelField;
-            }, []),
-            type: 'pie',
-            textinfo: getTextInfo(options.labelDisplayOptions)
-          }
-        ]}
-      /> */}
-
       <Plot
         className={styles.svg}
         useResizeHandler
@@ -200,6 +165,7 @@ export const CorrelationMatrixPanel: React.FC<Props> = ({ data, id, fieldConfig,
         }}
         data={[{
           type: "heatmap",
+          // Use the useMemo hook instead of calling it here!
           ...handleThreshold(),
           // z: options.normalize ? chartData.normalized : chartData.z,
           colorscale: [
