@@ -7,6 +7,8 @@ import Plot from 'react-plotly.js';
 import tinycolor from 'tinycolor2';
 import { PanelDataErrorView } from '@grafana/runtime';
 import { CorrelationMatrixOptions } from 'models.gen';
+import { normalize } from 'utils';
+import { truncate } from 'lodash';
 
 interface Props extends PanelProps<CorrelationMatrixOptions> { }
 
@@ -46,9 +48,7 @@ const getRange = (fields: Field[]) => {
   return { min, max };
 }
 
-const normalize = (min: number, max: number, value: number) => {
-  return (value - min) / (max - min) * 2 - 1
-}
+const MAX_TICK_LABEL_CHARS = 20;
 
 export const CorrelationMatrixPanel: React.FC<Props> = ({ data, id, fieldConfig, options }) => {
   const theme = useTheme2();
@@ -70,8 +70,21 @@ export const CorrelationMatrixPanel: React.FC<Props> = ({ data, id, fieldConfig,
       const normalizedValues: number[][] = zValues.length === 1 ? [[0]] : zValues.map(values => values = values.map(value => normalize(localRange.min, localRange.max, value)));
       // Raw and normalized data is stored for fast switching between modes from the options panel when the data size grows. It might not be wise to store it though. Need to ponder.
       setChartData({
-        x: fieldsSlice.map(field => field.name),
-        y: data.series[0].fields[0].values.toArray(),
+        // Since automargin is enabled for the axis, the graph gives as much space needed to display labels. So, very long labels shrink the chart. That is why labels are truncated.
+        // https://plotly.com/python/reference/layout/xaxis/
+        // https://community.plotly.com/t/how-can-i-resize-labels-which-are-very-long/18347/7
+        // https://community.plotly.com/t/ellipsis-for-truncated-axis-labels/4752
+        // https://community.plotly.com/t/break-long-label-into-several-lines/40275
+        x: fieldsSlice.map(field => truncate(field.name, {
+          'length': MAX_TICK_LABEL_CHARS,
+          'omission': '...'
+        }
+        )),
+        y: data.series[0].fields[0].values.toArray().map(label => truncate(label, {
+          'length': MAX_TICK_LABEL_CHARS,
+          'omission': '...'
+        }
+        )),
         z: zValues,
         zRaw: zValues,
         normalized: normalizedValues,
