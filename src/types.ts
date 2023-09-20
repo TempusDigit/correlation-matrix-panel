@@ -1,7 +1,7 @@
-export interface ChartData {
-  x: string[];
-  y: string[];
-  z: (number | null)[][];
-  zRaw: (number | null)[][];
-  normalized: (number | null)[][];
+type SeriesSize = 'sm' | 'md' | 'lg';
+
+export interface SimpleOptions {
+  text: string;
+  showSeriesCount: boolean;
+  seriesCountSize: SeriesSize;
 }

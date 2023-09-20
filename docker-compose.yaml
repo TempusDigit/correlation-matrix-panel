@@ -1,14 +1,16 @@
-version: '3.0'
+version: "3.0"
 
 services:
   grafana:
-    container_name: 'correlation-matrix-panel'
+    container_name: "correlation-matrix-panel"
+    platform: "linux/amd64"
     build:
       context: ./.config
       args:
-        grafana_version: ${GRAFANA_VERSION:-9.5.2}
+        grafana_image: ${GRAFANA_IMAGE:-grafana-enterprise}
+        grafana_version: ${GRAFANA_VERSION:-10.0.3}
     ports:
       - "3000:3000/tcp"
     volumes:
-      - ./dist:/var/lib/grafana/plugins/correlation-matrix-panel
-      - ./provisioning:/etc/grafana/provisioning
+      - "./dist:/var/lib/grafana/plugins/correlation-matrix-panel"
+      - "./provisioning:/etc/grafana/provisioning"

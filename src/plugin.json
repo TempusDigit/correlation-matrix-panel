@@ -5,9 +5,9 @@
   "id": "correlation-matrix-panel",
   "info": {
     "keywords": ["panel"],
-    "description": "",
+    "description": "Correlation matrix graph panel plugin",
     "author": {
-      "name": "Singletonas"
+      "name": "Singleton labs"
     },
     "logos": {
       "small": "img/logo.svg",
@@ -19,7 +19,7 @@
     "updated": "%TODAY%"
   },
   "dependencies": {
-    "grafanaDependency": ">=9.5.2",
+    "grafanaDependency": ">=10.0.3",
     "plugins": []
   }
 }
