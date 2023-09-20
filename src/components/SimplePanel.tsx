@@ -1,61 +1,52 @@
 import React from 'react';
-import { PanelProps } from '@grafana/data';
+import { GrafanaTheme2, PanelProps } from '@grafana/data';
 import { SimpleOptions } from 'types';
-import { css, cx } from '@emotion/css';
-import { useStyles2, useTheme2 } from '@grafana/ui';
+import { useTheme2 } from '@grafana/ui';
+import { defaults } from 'lodash';
+import Plotly from 'plotly.js/dist/plotly-custom.min.js';
+import createPlotlyComponent from 'react-plotly.js/factory';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
-const getStyles = () => {
-  return {
-    wrapper: css`
-      font-family: Open Sans;
-      position: relative;
-    `,
-    svg: css`
-      position: absolute;
-      top: 0;
-      left: 0;
-    `,
-    textBox: css`
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      padding: 10px;
-    `,
-  };
-};
+const Plot = createPlotlyComponent(Plotly);
+
+// defaultLayout resets the Plotly layout to work better with the Grafana theme.
+const defaultLayout = (theme: GrafanaTheme2) => ({
+  margin: {
+    r: 40,
+    l: 40,
+    t: 40,
+    b: 40,
+  },
+  plot_bgcolor: 'rgba(0,0,0,0)', // Transparent
+  paper_bgcolor: 'rgba(0,0,0,0)', // Transparent
+  font: {
+    color: theme.visualization.getColorByName(theme.isDark ? 'white' : 'black'),
+  },
+});
 
 export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) => {
   const theme = useTheme2();
-  const styles = useStyles2(getStyles);
-  return (
-    <div
-      className={cx(
-        styles.wrapper,
-        css`
-          width: ${width}px;
-          height: ${height}px;
-        `
-      )}
-    >
-      <svg
-        className={styles.svg}
-        width={width}
-        height={height}
-        xmlns="http://www.w3.org/2000/svg"
-        xmlnsXlink="http://www.w3.org/1999/xlink"
-        viewBox={`-${width / 2} -${height / 2} ${width} ${height}`}
-      >
-        <g>
-          <circle style={{ fill: theme.colors.primary.main }} r={100} />
-        </g>
-      </svg>
 
-      <div className={styles.textBox}>
-        {options.showSeriesCount && <div>Number of series: {data.series.length}</div>}
-        <div>Text option value: {options.text}</div>
-      </div>
-    </div>
+  const plotlyData: Plotly.Data[] = [
+    {
+      x: [1, 2, 3],
+      y: [2, 6, 3],
+      type: 'scatter',
+      mode: 'lines+markers',
+      marker: { color: 'red' },
+    },
+    { type: 'bar', x: [1, 2, 3], y: [2, 5, 3] },
+    { type: 'heatmap', x: [1, 2, 3], y: [2, 5, 3], z: [2, 5, 3] },
+  ];
+
+  const plotlyLayout: Partial<Plotly.Layout> = defaults(
+    {
+      width: width,
+      height: height,
+    },
+    defaultLayout(theme)
   );
+
+  return <Plot data={plotlyData} layout={plotlyLayout} />;
 };

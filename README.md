@@ -57,3 +57,11 @@
 
    npm run lint:fix
    ```
+
+## Development
+
+1. Run bundle script after changing Plotly version
+
+   ```bash
+   npm run plotly-bundle
+   ```
