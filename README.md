@@ -1,5 +1,7 @@
 # Correlation matrix graph panel plugin for Grafana
 
+[![CI](https://github.com/TempusDigit/correlation-matrix-panel/actions/workflows/ci.yml/badge.svg)](https://github.com/TempusDigit/correlation-matrix-panel/actions/workflows/ci.yml)
+
 ## Getting started
 
 ### Frontend

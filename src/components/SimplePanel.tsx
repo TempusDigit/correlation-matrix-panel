@@ -5,6 +5,7 @@ import { useTheme2 } from '@grafana/ui';
 import { defaults } from 'lodash';
 import Plotly from 'plotly.js/dist/plotly-custom.min.js';
 import createPlotlyComponent from 'react-plotly.js/factory';
+import { TestIds } from '../test-ids';
 
 interface Props extends PanelProps<SimpleOptions> {}
 
@@ -48,5 +49,5 @@ export const SimplePanel: React.FC<Props> = ({ options, data, width, height }) =
     defaultLayout(theme)
   );
 
-  return <Plot data={plotlyData} layout={plotlyLayout} />;
+  return <Plot data-testid={TestIds.correlationMatrixGraph.root} data={plotlyData} layout={plotlyLayout} />;
 };
