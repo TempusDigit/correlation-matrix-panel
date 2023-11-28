@@ -1,7 +1,13 @@
-type SeriesSize = 'sm' | 'md' | 'lg';
+// export interface ErrorViewInfo {
+//   warning: string;
+// };
 
-export interface SimpleOptions {
-  text: string;
-  showSeriesCount: boolean;
-  seriesCountSize: SeriesSize;
-}
+export interface CorrelationMatrixData {
+    xValues: string[];
+    yValues: string[];
+    zValues: number[][];
+};
+
+// export interface Info {
+
+// };
