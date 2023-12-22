@@ -12,7 +12,7 @@
     "lint:fix": "npm run lint -- --fix",
     "e2e": "npm exec cypress install && npm exec grafana-e2e run",
     "e2e:update": "npm exec cypress install && npm exec grafana-e2e run --update-screenshots",
-    "server": "docker-compose up --build",
+    "server": "docker compose up --build",
     "sign": "npx --yes @grafana/sign-plugin@latest",
     "plotly-bundle": "cd node_modules/plotly.js && npm i && npm run custom-bundle -- --traces heatmap --transforms none",
     "postinstall": "npm run plotly-bundle"
