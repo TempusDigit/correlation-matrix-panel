@@ -2,6 +2,7 @@
   "extends": "./.config/.eslintrc",
   "rules": {
     "semi": [2, "always"],
+    "quotes": [2, "single"],
     "@typescript-eslint/array-type": 0
   }
 }

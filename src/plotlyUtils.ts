@@ -1,7 +1,7 @@
-import { GrafanaTheme2 } from "@grafana/data";
-import { CorrelationMatrixOptions } from "models.gen";
-import { Font, Layout, LayoutAxis, PlotData } from "plotly.js";
-import { CorrelationMatrixData } from "types";
+import { GrafanaTheme2 } from '@grafana/data';
+import { CorrelationMatrixOptions } from 'models.gen';
+import { Font, Layout, LayoutAxis, PlotData } from 'plotly.js';
+import { Info } from 'types';
 
 export function getPlotlyTickFont(theme: GrafanaTheme2): Font {
     return {
@@ -21,13 +21,22 @@ export function getPlotlyAxisSettings(theme: GrafanaTheme2, tickFont: Partial<Fo
     };
 };
 
-export function getPlotlyData(data: CorrelationMatrixData, theme: GrafanaTheme2, options: CorrelationMatrixOptions, tickFont: Font): Partial<PlotData>[] {
+export function getPlotlyData(
+    info: Info,
+    theme: GrafanaTheme2,
+    options: CorrelationMatrixOptions,
+    tickFont: Font
+): Partial<PlotData>[] {
+    if (!info.data) {
+        return [{}];
+    }
+
     return [
         {
             type: 'heatmap',
-            x: data.xValues,
-            y: data.yValues,
-            z: data.zValues,
+            x: info.data.xValues,
+            y: info.data.yValues,
+            z: info.data.zValues,
             colorscale: [
                 [0, theme.visualization.getColorByName(options.colorScaleBottom)],
                 [1, theme.visualization.getColorByName(options.colorScaleTop)],
