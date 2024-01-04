@@ -2,7 +2,7 @@ import { DataFrame, Field, FieldType } from '@grafana/data';
 import { TRUNCATE_OPTIONS } from 'consts';
 import { truncate, unzip } from 'lodash';
 import { CorrelationMatrixOptions } from 'models.gen';
-import { CorrelationMatrixData } from 'types';
+import { CorrelationMatrixData, Info } from 'types';
 
 function validateSeries(series: DataFrame[], options: CorrelationMatrixOptions): void {
     let errorMessage = '';
@@ -45,6 +45,7 @@ function getNormalizedValues(numericFields: Field<any, any[]>[]): number[][] {
 function getThresholdedData(labels: string[], normalizedValues: number[][], threshold: number): CorrelationMatrixData {
     const labelsThresholded: string[] = [];
     const zValuesThresholded: number[][] = [];
+
     // A column is not added to the visualization data if all the values in that column expect one (that is expected to
     // equal one) do not correlate (lower than threshold).
     normalizedValues.forEach((values, colIndex) => {
@@ -63,16 +64,14 @@ function getThresholdedData(labels: string[], normalizedValues: number[][], thre
     return { xValues: labelsThresholded, yValues: labelsThresholded, zValues: zValuesThresholded };
 }
 
-export function prepareCorrelationMatrixData(
-    series: DataFrame[],
-    options: CorrelationMatrixOptions
-): CorrelationMatrixData {
+function prepareCorrelationMatrixData(series: DataFrame[], options: CorrelationMatrixOptions): CorrelationMatrixData {
     validateSeries(series, options);
 
     const numericFields = series[options.series].fields.slice(1);
     let xValues = numericFields.map(field => truncate(field.name, TRUNCATE_OPTIONS));
     let yValues = xValues;
     let zValues: number[][] = numericFields.map(field => field.values.toArray());
+
     if (options.normalize || options.threshold) {
         const normalizedValues = getNormalizedValues(numericFields);
         if (options.normalize) {
@@ -82,9 +81,18 @@ export function prepareCorrelationMatrixData(
             ({ xValues, yValues, zValues } = getThresholdedData(xValues, normalizedValues, options.threshold));
         }
     }
+
     // Plotly expects the z values to be passed as an array of rows. Grafana presents values as an array of columns.
     // Unzip reformats the data from columns to rows.
     zValues = unzip(zValues);
 
     return { xValues, yValues, zValues };
 };
+
+export function getInfo(series: DataFrame[], options: CorrelationMatrixOptions): Info {
+    try {
+        return { data: prepareCorrelationMatrixData(series, options) };
+    } catch (e: any) {
+        return { warning: e.message };
+    }
+}

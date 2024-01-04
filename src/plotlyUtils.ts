@@ -1,7 +1,8 @@
 import { GrafanaTheme2 } from '@grafana/data';
 import { CorrelationMatrixOptions } from 'models.gen';
-import { Font, Layout, LayoutAxis, PlotData } from 'plotly.js';
+import { Font, Layout, PlotData } from 'plotly.js';
 import { Info } from 'types';
+import { Config } from 'plotly.js/dist/plotly-custom.min.js';
 
 export function getPlotlyTickFont(theme: GrafanaTheme2): Font {
     return {
@@ -11,15 +12,11 @@ export function getPlotlyTickFont(theme: GrafanaTheme2): Font {
     };
 };
 
-export function getPlotlyAxisSettings(theme: GrafanaTheme2, tickFont: Partial<Font>): Partial<LayoutAxis> {
+export function getPlotlyConfig(): Partial<Config> {
     return {
-        color: theme.colors.text.primary,
-        tickfont: tickFont,
-        showgrid: false,
-        fixedrange: true,
-        automargin: true,
+        displayModeBar: false
     };
-};
+}
 
 export function getPlotlyData(
     info: Info,
@@ -50,7 +47,20 @@ export function getPlotlyData(
     ];
 };
 
-export function getPlotlyLayout(width: number, height: number, axisSettings: Partial<LayoutAxis>): Partial<Layout> {
+export function getPlotlyLayout(
+    theme: GrafanaTheme2,
+    tickFont: Partial<Font>,
+    width: number,
+    height: number
+): Partial<Layout> {
+    const layoutAxis = {
+        color: theme.colors.text.primary,
+        tickfont: tickFont,
+        showgrid: false,
+        fixedrange: true,
+        automargin: true,
+    };
+
     return {
         width,
         height,
@@ -62,9 +72,9 @@ export function getPlotlyLayout(width: number, height: number, axisSettings: Par
         },
         plot_bgcolor: 'transparent',
         paper_bgcolor: 'transparent',
-        xaxis: axisSettings,
+        xaxis: layoutAxis,
         yaxis: {
-            ...axisSettings,
+            ...layoutAxis,
             autorange: 'reversed'
         },
     };
