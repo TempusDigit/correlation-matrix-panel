@@ -18,8 +18,15 @@ export const plugin = new PanelPlugin<CorrelationMatrixOptions>(CorrelationMatri
       })
       .addBooleanSwitch({
         path: 'normalize',
-        name: 'Normalization',
+        name: 'Normalize data',
         defaultValue: defualtCorrelationMatrixConfig.normalize,
+      })
+      .addTextInput({
+        path: 'threshold',
+        name: 'Hide cells with correlation <',
+        settings: {
+          placeholder: 'None',
+        },
       })
       .addColorPicker({
         path: 'colorScaleTop',
@@ -31,11 +38,9 @@ export const plugin = new PanelPlugin<CorrelationMatrixOptions>(CorrelationMatri
         name: 'Color scale bottom',
         defaultValue: defualtCorrelationMatrixConfig.colorScaleBottom,
       })
-      .addTextInput({
-        path: 'threshold',
-        name: 'Hide cells with correlation <',
-        settings: {
-          placeholder: 'None',
-        },
+      .addBooleanSwitch({
+        path: 'showValues',
+        name: 'Show values',
+        defaultValue: defualtCorrelationMatrixConfig.showValues,
       });
   });

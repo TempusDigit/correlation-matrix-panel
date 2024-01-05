@@ -18,8 +18,14 @@ export const CorrelationMatrixPanel: React.FC<Props> = ({ data, fieldConfig, hei
   const tickFont = useMemo(() => getPlotlyTickFont(theme), [theme]);
   const info = useMemo(() => getInfo(data.series, options), [data.series, options]);
   const plotlyConfig = useMemo(() => getPlotlyConfig(), []);
-  const plotlyData = useMemo(() => getPlotlyData(info, theme, options, tickFont), [info, theme, options, tickFont]);
-  const plotlyLayout = useMemo(() => getPlotlyLayout(theme, tickFont, width, height), [theme, tickFont, width, height]);
+  const plotlyData = useMemo(
+    () => getPlotlyData(info.data, options, theme, tickFont),
+    [info.data, options, theme, tickFont]
+  );
+  const plotlyLayout = useMemo(
+    () => getPlotlyLayout(info.data, options, theme, tickFont, width, height),
+    [info.data, options, theme, tickFont, width, height]
+  );
 
   if (info.warning) {
     return <PanelDataErrorView

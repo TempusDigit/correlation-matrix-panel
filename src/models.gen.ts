@@ -1,9 +1,10 @@
 export interface CorrelationMatrixOptions {
     series: number;
     normalize: boolean;
+    threshold?: number;
     colorScaleTop: string;
     colorScaleBottom: string;
-    threshold?: number;
+    showValues: boolean;
 }
 
 export const defualtCorrelationMatrixConfig: CorrelationMatrixOptions = {
@@ -11,4 +12,5 @@ export const defualtCorrelationMatrixConfig: CorrelationMatrixOptions = {
     normalize: true,
     colorScaleTop: '#fff5eb',
     colorScaleBottom: '#7f2704',
+    showValues: false,
 };

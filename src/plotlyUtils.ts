@@ -1,8 +1,7 @@
 import { GrafanaTheme2 } from '@grafana/data';
 import { CorrelationMatrixOptions } from 'models.gen';
-import { Font, Layout, PlotData } from 'plotly.js';
-import { Info } from 'types';
-import { Config } from 'plotly.js/dist/plotly-custom.min.js';
+import { CorrelationMatrixData } from 'types';
+import { Config, Annotations, Font, Layout, LayoutAxis, PlotData } from 'plotly.js/dist/plotly-custom.min.js';
 
 export function getPlotlyTickFont(theme: GrafanaTheme2): Font {
     return {
@@ -19,21 +18,21 @@ export function getPlotlyConfig(): Partial<Config> {
 }
 
 export function getPlotlyData(
-    info: Info,
-    theme: GrafanaTheme2,
+    data: CorrelationMatrixData | undefined,
     options: CorrelationMatrixOptions,
+    theme: GrafanaTheme2,
     tickFont: Font
 ): Partial<PlotData>[] {
-    if (!info.data) {
+    if (!data) {
         return [{}];
     }
 
     return [
         {
             type: 'heatmap',
-            x: info.data.xValues,
-            y: info.data.yValues,
-            z: info.data.zValues,
+            x: data.xValues,
+            y: data.yValues,
+            z: data.zValues,
             colorscale: [
                 [0, theme.visualization.getColorByName(options.colorScaleBottom)],
                 [1, theme.visualization.getColorByName(options.colorScaleTop)],
@@ -47,21 +46,50 @@ export function getPlotlyData(
     ];
 };
 
-export function getPlotlyLayout(
-    theme: GrafanaTheme2,
-    tickFont: Partial<Font>,
-    width: number,
-    height: number
-): Partial<Layout> {
-    const layoutAxis = {
+function getLayoutAxis(theme: GrafanaTheme2, tickFont: Partial<Font>): Partial<LayoutAxis> {
+    return {
         color: theme.colors.text.primary,
         tickfont: tickFont,
         showgrid: false,
         fixedrange: true,
         automargin: true,
     };
+}
 
-    return {
+function getAnnotations(data: CorrelationMatrixData, font: Partial<Font>): Partial<Annotations>[] {
+    const annotations: Partial<Annotations>[] = [];
+
+    for (let i = 0; i < data.yValues.length; i++) {
+        for (let j = 0; j < data.xValues.length; j++) {
+            annotations.push({
+                xref: 'x',
+                yref: 'y',
+                x: data.xValues[j],
+                y: data.yValues[i],
+                text: data.zValues[i][j].toString(),
+                font,
+                showarrow: false,
+            });
+        }
+    }
+
+    return annotations;
+}
+
+export function getPlotlyLayout(
+    data: CorrelationMatrixData | undefined,
+    options: CorrelationMatrixOptions,
+    theme: GrafanaTheme2,
+    tickFont: Partial<Font>,
+    width: number,
+    height: number
+): Partial<Layout> {
+    if (!data) {
+        return {};
+    }
+
+    const layoutAxis = getLayoutAxis(theme, tickFont);
+    const layout: Partial<Layout> = {
         width,
         height,
         margin: {
@@ -78,4 +106,10 @@ export function getPlotlyLayout(
             autorange: 'reversed'
         },
     };
+
+    if (options.showValues) {
+        layout.annotations = getAnnotations(data, tickFont);
+    }
+
+    return layout;
 };
