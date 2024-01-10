@@ -1,11 +1,12 @@
 import { DataFrame, Field, FieldType } from '@grafana/data';
-import { TRUNCATE_OPTIONS } from 'consts';
+import { NUMERIC_FIELD_START, TRUNCATE_OPTIONS } from 'consts';
 import { truncate, unzip } from 'lodash';
 import { CorrelationMatrixOptions } from 'models.gen';
 import { CorrelationMatrixData, Info } from 'types';
 
 function validateSeries(series: DataFrame[], options: CorrelationMatrixOptions): void {
     let errorMessage = '';
+
     if (series.length === 0) {
         errorMessage = 'No data';
     } else if (series[options.series].fields.length < 2) {
@@ -14,7 +15,7 @@ function validateSeries(series: DataFrame[], options: CorrelationMatrixOptions):
         errorMessage = 'Matrix must be square';
     } else {
         // Skip first field because it is a column of labels (strings that can be empty/null).
-        for (let i = 1; i < series[options.series].fields.length; i++) {
+        for (let i = NUMERIC_FIELD_START; i < series[options.series].fields.length; i++) {
             const field = series[options.series].fields[i];
             if (field.values.toArray().some(value => value === null)) {
                 errorMessage = 'Matrix must not have null values';
@@ -50,11 +51,13 @@ function getThresholdedData(labels: string[], normalizedValues: number[][], thre
     // equal one) do not correlate (lower than threshold).
     normalizedValues.forEach((values, colIndex) => {
         let uncorrCount = 1;
+
         values.forEach(value => {
             if (Math.abs(value) < Math.abs(threshold)) {
                 uncorrCount++;
             }
         });
+
         if (uncorrCount < values.length) {
             labelsThresholded.push(labels[colIndex]);
             zValuesThresholded.push(normalizedValues[colIndex]);
@@ -67,7 +70,7 @@ function getThresholdedData(labels: string[], normalizedValues: number[][], thre
 function prepareCorrelationMatrixData(series: DataFrame[], options: CorrelationMatrixOptions): CorrelationMatrixData {
     validateSeries(series, options);
 
-    const numericFields = series[options.series].fields.slice(1);
+    const numericFields = series[options.series].fields.slice(NUMERIC_FIELD_START);
     let xValues = numericFields.map(field => truncate(field.name, TRUNCATE_OPTIONS));
     let yValues = xValues;
     let zValues: number[][] = numericFields.map(field => field.values.toArray());
