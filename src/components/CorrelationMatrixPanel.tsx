@@ -15,13 +15,8 @@ const Plot = createPlotlyComponent(Plotly);
 
 export const CorrelationMatrixPanel: React.FC<Props> = ({ data, fieldConfig, height, id, options, width }) => {
   const theme = useTheme2();
-  const tickFont = useMemo(() => getPlotlyTickFont(theme), [theme]);
+  const tickFont = getPlotlyTickFont(theme);
   const info = useMemo(() => getInfo(data.series, options), [data.series, options]);
-  const plotlyConfig = useMemo(() => getPlotlyConfig(), []);
-  const plotlyData = useMemo(
-    () => getPlotlyData(info.data, options, theme, tickFont),
-    [info.data, options, theme, tickFont]
-  );
   const plotlyLayout = useMemo(
     () => getPlotlyLayout(info.data, options, theme, tickFont, width, height),
     [info.data, options, theme, tickFont, width, height]
@@ -38,8 +33,8 @@ export const CorrelationMatrixPanel: React.FC<Props> = ({ data, fieldConfig, hei
 
   return <Plot
     divId={TEST_SELECTORS.plotlyChart.root}
-    config={plotlyConfig}
-    data={plotlyData}
+    config={getPlotlyConfig()}
+    data={getPlotlyData(info.data, options, theme, tickFont)}
     layout={plotlyLayout}
   />;
 };
