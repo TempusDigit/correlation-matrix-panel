@@ -7,7 +7,7 @@ export interface CorrelationMatrixOptions {
     showValues: boolean;
 }
 
-export const defualtCorrelationMatrixConfig: CorrelationMatrixOptions = {
+export const defaultCorrelationMatrixConfig: CorrelationMatrixOptions = {
     series: 0,
     normalize: true,
     colorScaleTop: '#fff5eb',

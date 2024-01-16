@@ -1,5 +1,5 @@
 import { PanelPlugin, getFrameDisplayName } from '@grafana/data';
-import { CorrelationMatrixOptions, defualtCorrelationMatrixConfig } from 'models.gen';
+import { CorrelationMatrixOptions, defaultCorrelationMatrixConfig } from 'models.gen';
 import { CorrelationMatrixPanel } from './components/CorrelationMatrixPanel';
 
 export const plugin = new PanelPlugin<CorrelationMatrixOptions>(CorrelationMatrixPanel).setPanelOptions(
@@ -8,7 +8,7 @@ export const plugin = new PanelPlugin<CorrelationMatrixOptions>(CorrelationMatri
       .addSelect({
         path: 'series',
         name: 'Data',
-        defaultValue: defualtCorrelationMatrixConfig.series,
+        defaultValue: defaultCorrelationMatrixConfig.series,
         settings: {
           options: context.data.map((frame, index) => ({
             value: index,
@@ -19,7 +19,7 @@ export const plugin = new PanelPlugin<CorrelationMatrixOptions>(CorrelationMatri
       .addBooleanSwitch({
         path: 'normalize',
         name: 'Normalize data',
-        defaultValue: defualtCorrelationMatrixConfig.normalize,
+        defaultValue: defaultCorrelationMatrixConfig.normalize,
       })
       .addTextInput({
         path: 'threshold',
@@ -31,16 +31,16 @@ export const plugin = new PanelPlugin<CorrelationMatrixOptions>(CorrelationMatri
       .addColorPicker({
         path: 'colorScaleTop',
         name: 'Color scale top',
-        defaultValue: defualtCorrelationMatrixConfig.colorScaleTop,
+        defaultValue: defaultCorrelationMatrixConfig.colorScaleTop,
       })
       .addColorPicker({
         path: 'colorScaleBottom',
         name: 'Color scale bottom',
-        defaultValue: defualtCorrelationMatrixConfig.colorScaleBottom,
+        defaultValue: defaultCorrelationMatrixConfig.colorScaleBottom,
       })
       .addBooleanSwitch({
         path: 'showValues',
         name: 'Show values',
-        defaultValue: defualtCorrelationMatrixConfig.showValues,
+        defaultValue: defaultCorrelationMatrixConfig.showValues,
       });
   });
